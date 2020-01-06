@@ -11,7 +11,6 @@ void process_keyboard_input_loop() {
 }
 
 int main(int, char**) {
-	
 	process_keyboard_input_loop();
 	return 0;
 }
