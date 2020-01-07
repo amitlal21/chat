@@ -10,11 +10,11 @@ clean: | bin
 	rm -f bin/chat-client bin/chat-server
 	rmdir bin
 
-bin/chat-client: src/client/client.cpp Makefile | bin
-	g++ $(CXXFLAGS) -o $@ $(filter-out Makefile,$^)
+bin/chat-client: src/client/client.cpp src/message/Message.h Makefile | bin
+	g++ $(CXXFLAGS) -o $@ $(filter %.cpp,$^)
 
 bin/chat-server: src/server/server.cpp Makefile | bin
-	g++ $(CXXFLAGS) -o $@ $(filter-out Makefile,$^)
+	g++ $(CXXFLAGS) -o $@ $(filter %.cpp,$^)
 
 bin:
 	mkdir $@
