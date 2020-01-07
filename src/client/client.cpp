@@ -1,3 +1,5 @@
+#include "message/Message.h"
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -8,12 +10,31 @@
 #include <iostream>
 #include <string>
 
-void process_keyboard_input_loop() {
+void send_message(int socket_fd, const Message& message) {
+	const char* ptr = reinterpret_cast<const char*>(&message);
+	const char* end_ptr = ptr + message.size();
+
+	while (ptr != end_ptr) {
+		int sent = send(socket_fd, ptr, end_ptr - ptr, 0);
+		if (sent == -1) {
+			std::cerr << "Send failed" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		ptr += sent;
+	}
+	
+}
+
+void process_keyboard_input_loop(int socket_fd) {
 	while(true) {
 		std::cout << "> ";
-		std::string message;
-		std::getline(std::cin, message);
-		std::cout << message << std::endl;
+		std::string line;
+		std::getline(std::cin, line);
+
+		Message message(line);
+		send_message(socket_fd, message);
+
+		std::cout << line << std::endl;
 	}
 }
 
@@ -33,7 +54,7 @@ int main(int, char**) {
 		exit(EXIT_FAILURE);
 	}
 
-	process_keyboard_input_loop();
+	process_keyboard_input_loop(socket_fd);
 
 	if(close(socket_fd) == -1) {
 		std::cerr << "Close failed" << std::endl;

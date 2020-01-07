@@ -1,4 +1,6 @@
 CXXFLAGS := -Wall -Wextra -Wpedantic -Werror
+CXXFLAGS += -std=c++14
+CXXFLAGS += -I./src
 
 .PHONY: all
 all: bin/chat-client bin/chat-server
