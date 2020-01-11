@@ -1,3 +1,4 @@
+#include "constants/port.h"
 #include "message/message.h"
 #include "message/transfer.h"
 
@@ -44,7 +45,7 @@ int main(int argc, char** argv) {
 
 	sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
-	server_address.sin_port = htons(5000);
+	server_address.sin_port = htons(PORT);
 
 	if (inet_pton(AF_INET, ip_address, &server_address.sin_addr.s_addr) != 1) {
 		std::cerr << "Invalid IP address" << std::endl;

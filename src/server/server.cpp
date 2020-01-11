@@ -1,4 +1,5 @@
 #include "state.h"
+#include "constants/port.h"
 #include "message/message.h"
 #include "message/transfer.h"
 
@@ -65,7 +66,7 @@ int main(int, char**) {
 	sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-	server_address.sin_port = htons(5000);
+	server_address.sin_port = htons(PORT);
 	if (bind(socket_fd, (sockaddr*)&server_address, sizeof(server_address)) == -1) {
 		std::cerr << "Bind failed" << std::endl;
 		exit(EXIT_FAILURE);

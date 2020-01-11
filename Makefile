@@ -10,7 +10,8 @@ clean: | bin
 	rm -f bin/chat-client bin/chat-server
 	rmdir bin
 
-common_prereqs := src/message/header.h
+common_prereqs := src/constants/port.h
+common_prereqs += src/message/header.h
 common_prereqs += src/message/message.h
 common_prereqs += src/message/transfer.h
 common_prereqs += src/message/transfer.cpp
