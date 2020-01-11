@@ -13,21 +13,21 @@
 #include <thread>
 
 void process_keyboard_input_loop(int connection_fd) {
+	std::cout << "> " << std::flush;
 	while (true) {
-		std::cout << "> ";
 		std::string line;
 		std::getline(std::cin, line);
 
 		Message message(line);
 		send_message(connection_fd, message);
-
 	}
 }
 
 void connection_recv_loop(int connection_fd) {
 	while (true) {
 		Message m = recv_message(connection_fd);
-		std::cout << "Received message: " << m.get_line() << std::endl;
+		std::cout << "\nReceived message: " << m.get_line() << std::endl;
+		std::cout << "> " << std::flush;
 	}
 }
 
