@@ -45,7 +45,7 @@ void process_listening_socket(int socket_fd) {
 	while (true) {
 		sockaddr_in client_address;
 		socklen_t client_address_len = sizeof(client_address);
-		int connection_fd = accept(socket_fd, (struct sockaddr*)&client_address, &client_address_len);
+		int connection_fd = accept(socket_fd, (sockaddr*)&client_address, &client_address_len);
 		if (connection_fd == -1) {
 			std::cerr << "Accept failed" << std::endl;
 			exit(EXIT_FAILURE);
@@ -66,7 +66,7 @@ int main(int, char**) {
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_address.sin_port = htons(5000);
-	if (bind(socket_fd, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
+	if (bind(socket_fd, (sockaddr*)&server_address, sizeof(server_address)) == -1) {
 		std::cerr << "Bind failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}

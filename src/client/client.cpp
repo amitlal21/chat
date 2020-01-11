@@ -31,18 +31,34 @@ void connection_recv_loop(int connection_fd) {
 	}
 }
 
-int main(int, char**) {
+int main(int argc, char** argv) {
+	if (argc > 2) {
+		std::cerr << "chat-client [ip-address]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	const char* ip_address = "127.0.0.1";
+	if (argc == 2) {
+		ip_address = argv[1];
+	}
+
+	sockaddr_in server_address;
+	server_address.sin_family = AF_INET;
+	server_address.sin_port = htons(5000);
+
+	if (inet_pton(AF_INET, ip_address, &server_address.sin_addr.s_addr) != 1) {
+		std::cerr << "Invalid IP address" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
 	int connection_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (connection_fd == -1) {
 		std::cerr << "Socket creation failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	sockaddr_in server_address;
-	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	server_address.sin_port = htons(5000);
-	if (connect(connection_fd, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
+	
+	if (connect(connection_fd, (sockaddr*)&server_address, sizeof(server_address)) == -1) {
 		std::cerr << "Connect failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}
