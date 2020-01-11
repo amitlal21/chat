@@ -11,13 +11,31 @@
 #include <exception>
 #include <iostream>
 #include <string>
+#include <thread>
 
-void process_connection(int connection_fd) {
-	while (true) {
-		Message m = recv_message(connection_fd);
-		std::cout << "Client message: " << m.get_line() << std::endl;
-		send_message(connection_fd, m);
+void connection_recv_loop(int connection_fd, sockaddr_in client_address) {
+	std::cout << "Client connected: " << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << std::endl;
+	
+	try {
+		while (true) {
+			Message m = recv_message(connection_fd);
+			std::cout << "Client message: " << m.get_line() << std::endl;
+			send_message(connection_fd, m);
+		}
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
 	}
+
+	std::cout<< "Client disconnected: " << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << std::endl;
+
+	if (close(connection_fd) == -1) {
+		std::cerr << "Close failed: fd = " << connection_fd << std::endl;
+	}
+}
+
+void handle_new_connection(int connection_fd, const sockaddr_in& client_address) {	
+	std::thread	t(connection_recv_loop, connection_fd, client_address);
+	t.detach();
 }
 
 void process_listening_socket(int socket_fd) {
@@ -30,20 +48,7 @@ void process_listening_socket(int socket_fd) {
 			exit(EXIT_FAILURE);
 		}
 
-		std::cout << "Client connected: " << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << std::endl;
-	 	
-	 	try {
-			process_connection(connection_fd);
-		} catch (std::exception e) {
-			std::cerr << e.what() << std::endl;
-		}
-
-		std::cout<< "Client disconnected" << std::endl;
-
-		if (close(connection_fd) == -1) {
-			std::cerr << "Close failed" << std::endl;
-			exit(EXIT_FAILURE);
-		}
+		handle_new_connection(connection_fd, client_address);
 	}
 }
 
@@ -70,6 +75,7 @@ int main(int, char**) {
 	}
 
 	process_listening_socket(socket_fd);
+	
 
 	if (close(socket_fd) == -1) {
 		std::cerr << "Close failed" << std::endl;

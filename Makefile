@@ -1,5 +1,5 @@
 CXXFLAGS := -Wall -Wextra -Wpedantic -Werror
-CXXFLAGS += -std=c++14
+CXXFLAGS += -std=c++14 -pthread
 CXXFLAGS += -I./src
 
 .PHONY: all
