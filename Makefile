@@ -16,10 +16,18 @@ common_prereqs += src/message/transfer.h
 common_prereqs += src/message/transfer.cpp
 common_prereqs += Makefile
 
-bin/chat-client: src/client/client.cpp $(common_prereqs) | bin
+client_prereqs := src/client/client.cpp
+client_prereqs += $(common_prereqs)
+
+server_prereqs := src/server/server.cpp
+server_prereqs += src/server/state.h
+server_prereqs += src/server/state.cpp
+server_prereqs += $(common_prereqs)
+
+bin/chat-client: $(client_prereqs) | bin
 	g++ $(CXXFLAGS) -o $@ $(filter %.cpp,$^)
 
-bin/chat-server: src/server/server.cpp $(common_prereqs) | bin
+bin/chat-server: $(server_prereqs) | bin
 	g++ $(CXXFLAGS) -o $@ $(filter %.cpp,$^)
 
 bin:

@@ -1,3 +1,4 @@
+#include "state.h"
 #include "message/message.h"
 #include "message/transfer.h"
 
@@ -16,16 +17,18 @@
 void connection_recv_loop(int connection_fd, sockaddr_in client_address) {
 	std::cout << "Client connected: " << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << std::endl;
 	
+	State::get_instance().add_connection(connection_fd);
 	try {
 		while (true) {
 			Message m = recv_message(connection_fd);
 			std::cout << "Client message: " << m.get_line() << std::endl;
-			send_message(connection_fd, m);
+			State::get_instance().broadcast_message(m);
 		}
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 	}
-
+	State::get_instance().remove_connection(connection_fd);
+	
 	std::cout<< "Client disconnected: " << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << std::endl;
 
 	if (close(connection_fd) == -1) {

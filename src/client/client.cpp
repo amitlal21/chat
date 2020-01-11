@@ -10,24 +10,30 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <thread>
 
-void process_keyboard_input_loop(int socket_fd) {
-	while(true) {
+void process_keyboard_input_loop(int connection_fd) {
+	while (true) {
 		std::cout << "> ";
 		std::string line;
 		std::getline(std::cin, line);
 
 		Message message(line);
-		send_message(socket_fd, message);
+		send_message(connection_fd, message);
 
-		Message m = recv_message(socket_fd);
-		std::cout << "Server message: " << m.get_line() << std::endl;
+	}
+}
+
+void connection_recv_loop(int connection_fd) {
+	while (true) {
+		Message m = recv_message(connection_fd);
+		std::cout << "Received message: " << m.get_line() << std::endl;
 	}
 }
 
 int main(int, char**) {
-	int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (socket_fd == -1) {
+	int connection_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (connection_fd == -1) {
 		std::cerr << "Socket creation failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -36,14 +42,17 @@ int main(int, char**) {
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	server_address.sin_port = htons(5000);
-	if(connect(socket_fd, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
+	if (connect(connection_fd, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
 		std::cerr << "Connect failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	process_keyboard_input_loop(socket_fd);
+	std::thread t(connection_recv_loop, connection_fd);
+	t.detach();
 
-	if(close(socket_fd) == -1) {
+	process_keyboard_input_loop(connection_fd);
+
+	if (close(connection_fd) == -1) {
 		std::cerr << "Close failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}
